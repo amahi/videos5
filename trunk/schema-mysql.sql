@@ -35,6 +35,7 @@ CREATE TABLE `files` (
   `queued_for_encode` tinytext COLLATE latin1_swedish_ci NOT NULL,
   `found` enum('yes','no') COLLATE latin1_swedish_ci NOT NULL DEFAULT 'yes',
   `rating` enum('G','PG','PG-13','R','NC-17','TV-Y','TV-Y7','TV-G','TV-PG','TV-14','TV-MA') COLLATE latin1_swedish_ci DEFAULT NULL,
+  `last_scanned_size` bigint(12) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
