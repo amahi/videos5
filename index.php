@@ -2,6 +2,8 @@
 mysql_connect('localhost', 'videos5', 'videos5') or die("Can't connect to MySQL database.");
 mysql_select_db('videos5') or die("Database 'videos5' not found, or unusable.");
 
+$arch = exec('uname -i');
+
 $ratings_definitions = array(
 	'Unrated' => '',
 	'G' => 'General audience',
@@ -700,12 +702,12 @@ else if (isset($_GET['e'])) {
 						if ($total_filesize == 0) {
 							$encoding_progress = get_encoding_progress($q, 0);
 							if (preg_match('/Encoding: ([0-9\.]+)%.*ETA: (..)h(..)m(..)s/', $encoding_progress, $regs)) {
-								$size_left = filesize($q) * (100-$regs[1]) / 100; // bytes
+								$size_left = _filesize($q) * (100-$regs[1]) / 100; // bytes
 								$time_left = $regs[4] + (60*$regs[3]) + (60*60*$regs[2]); // seconds
 								$avg_speed = $size_left/$time_left; // bytes/second
 							}
 						}
-						$total_filesize += filesize($q);
+						$total_filesize += _filesize($q);
 					}
 					if (isset($avg_speed) && count($queued_encodes) > 1) {
 						$eta = $total_filesize / $avg_speed;
@@ -1098,6 +1100,26 @@ function find_videos($find_path = null) {
 
 function insert_video($real_file, $rating=null) {
 	echo "$real_file\n";
+
+	$query = sprintf("SELECT * FROM files WHERE path = '%s'",
+		mysql_escape_string($real_file)
+	);
+	$result = mysql_query($query) or die("Error while querying DB: " . mysql_error());
+	if (mysql_num_rows($result) > 0) {
+		$row = mysql_fetch_object($result);
+		$queued_for_encode = $row->queued_for_encode;
+	} else {
+		$queued_for_encode = 'no';
+	}
+
+	if (isset($row) && _filesize($real_file) == $row->last_scanned_size) {
+		$query = sprintf("UPDATE files SET found = 'yes' WHERE path = '%s' LIMIT 1",
+			mysql_escape_string($real_file)
+		);
+		mysql_query($query) or die("Can't update found = 'yes' in files table: " . mysql_error());
+		return;
+	}
+
 	list($video_codec, $audio_codec, $width, $height) = get_video_infos($real_file);
 	if ($width == 0 && $height == 0) {
 		// Maybe it's currently encoding?
@@ -1120,16 +1142,6 @@ function insert_video($real_file, $rating=null) {
 		$html5_ready[] = 'android';
 	}
 	
-	$query = sprintf("SELECT * FROM files WHERE path = '%s'",
-		mysql_escape_string($real_file)
-	);
-	$result = mysql_query($query) or die("Error while querying DB: " . mysql_error());
-	if (mysql_num_rows($result) > 0) {
-		$row = mysql_fetch_object($result);
-		$queued_for_encode = $row->queued_for_encode;
-	} else {
-		$queued_for_encode = 'no';
-	}
 	if (empty($rating)) {
 		$rating = get_video_rating($real_file);
 	}
@@ -1139,14 +1151,15 @@ function insert_video($real_file, $rating=null) {
 	);
 	mysql_query($query) or die("Can't delete from files table: " . mysql_error());
 
-	$query = sprintf("INSERT INTO files (path, video_codec, audio_codec, html5_ready, resolution, queued_for_encode, rating) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', %s)",
+	$query = sprintf("INSERT INTO files (path, video_codec, audio_codec, html5_ready, resolution, queued_for_encode, rating, last_scanned_size) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', %s, %s)",
 		mysql_escape_string($real_file),
 		mysql_escape_string($video_codec),
 		mysql_escape_string($audio_codec),
 		implode(',', $html5_ready),
 		$width . 'x' . $height,
 		$queued_for_encode,
-		empty($rating) || $rating == 'Unrated' ? 'NULL' : "'" . mysql_escape_string($rating) . "'"
+		empty($rating) || $rating == 'Unrated' ? 'NULL' : "'" . mysql_escape_string($rating) . "'",
+		_filesize($real_file)
 	);
 	mysql_query($query) or die("Can't insert in files table: " . mysql_error());
 	
@@ -1691,6 +1704,11 @@ function get_files_for_user($current_path) {
 	while ($row = mysql_fetch_object($result)) {
 		$path = str_replace($current_path, '', $row->path);
 		$path = explode('/', $path);
+		if (!file_exists("$current_path/$path[0]")) {
+			if (!file_exists(mb_convert_encoding("$current_path/$path[0]", "UTF-8", "windows-1252"))) {
+				continue;
+			}
+		}
 		if (count($path) > 1) {
 			$content_dirs[$path[0].'/'] = TRUE;
 		} else {
@@ -1699,5 +1717,17 @@ function get_files_for_user($current_path) {
 	}
 	$content_dirs = array_keys($content_dirs);
 	return array($content_files, $content_dirs);
+}
+
+function _filesize($filename) {
+	global $arch;
+	if ($arch != 'x86_64') {
+		$result = exec("stat -c %s ".quoted_form($filename)." 2>/dev/null");
+		if (empty($result)) {
+			return FALSE;
+		}
+		return (float) $result;
+	}
+	return filesize($filename);
 }
 ?>
