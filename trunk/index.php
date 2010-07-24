@@ -1702,13 +1702,12 @@ function get_files_for_user($current_path) {
 	$query .= ") ORDER BY path";
 	$result = mysql_query($query) or die("Error while querying DB: " . mysql_error());
 	while ($row = mysql_fetch_object($result)) {
-		$path = str_replace($current_path, '', $row->path);
-		$path = explode('/', $path);
-		if (!file_exists("$current_path/$path[0]")) {
-			if (!file_exists(mb_convert_encoding("$current_path/$path[0]", "UTF-8", "windows-1252"))) {
-				continue;
-			}
+		if (!file_exists($row->path) && !file_exists(mb_convert_encoding($row->path, "UTF-8", "windows-1252"))) {
+			// Skip files that are not available anymore.
+			continue;
 		}
+		$path = str_replace($current_path, '', $row->path);
+		$path = explode('/', $path); 
 		if (count($path) > 1) {
 			$content_dirs[$path[0].'/'] = TRUE;
 		} else {
