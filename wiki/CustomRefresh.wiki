@@ -1,0 +1,19 @@
+The default for Videos5 is to rescan your Videos folder(s) every night, at 4am.
+
+If you'd like that to be more (or less) frequent, you can edit the cron entry.
+As root, *crontab -u apache -e* will allow you to edit the apache user crontab, which is where the cron entry will be, if you installed Videos5 through Amahi. See [http://www.washington.edu/computing/unix/vi.html How to use vi] for some info on the default command-line text editor that will start, when you use the above crontab command.
+
+The default is
+{{{
+0 4 * * *
+}}}
+
+To have it scan every hour, change it to this
+{{{
+0 * * * *
+}}}
+
+To have it scan every 2 hours, change it to this
+{{{
+0 */2 * * *
+}}}
