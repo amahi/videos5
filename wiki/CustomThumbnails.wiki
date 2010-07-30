@@ -1,5 +1,3 @@
-= Custom Thumbnails =
-
 If your Movies share contain folder.jpg and filename.tbn files (image files used by XBMC for thumbnails), those will be used to display thumbnails for folders and video files. More details about thumbnails can be found on the [http://wiki.xbmc.org/index.php?title=Thumbnails XBMC wiki].
 
 If you already use XBMC, and [http://wiki.xbmc.org/index.php?title=Video_Library indexed all your videos], you can export your library using Settings > Video > Library > Export video library. Then indicate you want to export 'separate' files, instead of a 'single file' export, and that you want to export thumbnails and fanart. This will generate filename.tbn files for all your movies, and folder.jpg for all your TV Shows folders.
