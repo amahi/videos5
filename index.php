@@ -999,9 +999,7 @@ function symlink_video($real_file) {
 	if ($ext == 'm4v' || strpos($ext, 'mp4') !== FALSE) { $ext = 'mp4'; }
 	if (strpos($ext, 'mov') !== FALSE) { $ext = 'mov'; }
 	$web_file = 'videos/' . md5($_SERVER['REMOTE_ADDR']) . '.' . $ext;
-	if (file_exists($web_file)) {
-		unlink($web_file);
-	}
+	@unlink($web_file);
 	symlink($real_file, $web_file);
 	return $web_file;
 }
