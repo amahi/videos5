@@ -93,6 +93,10 @@ if (isset($argv)) {
 				}
 			}
 
+			if (file_exists($output_file)) {
+				rename($output_file, "$output_file.bak");
+				echo "Warning! Found a file named $output_file; renamed to $output_file.bak";
+			}
 			$command = str_replace(array('$input', '$output'), array(quoted_form($row->path), quoted_form($output_file)), $encode_command);
 			echo "Launching encode: $command\n";
 			passthru($command);
@@ -112,7 +116,10 @@ if (isset($argv)) {
 					$query = sprintf("UPDATE files SET queued_for_encode = 'no' WHERE path = '%s'",
 						mysql_escape_string($row->path)
 					);
-					mysql_query($query) or die("Error while updating DB: " . mysql_error());
+					$result = mysql_query($query);
+					if ($result === FALSE) {
+						mysql_query($query) or die("Error while updating DB: " . mysql_error() . "\n");
+					}
 					insert_video($output_file, $row->rating);
 				} else {
 					unlink($output_file);
