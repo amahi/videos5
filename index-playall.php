@@ -1286,6 +1286,7 @@ function get_video_infos(&$real_file) {
 }
 
 function is_html5_ready($real_file, $video_codec, $audio_codec) {
+	return array(TRUE, TRUE, TRUE, TRUE);
 	$ext = substr($real_file, strrpos($real_file, '.')+1);
 
 	// H.264 or MPEG-4 video
@@ -1385,6 +1386,7 @@ function get_encoding_progress($real_file, $queue_position) {
 }
 
 function is_video_universal($html5_ready) {
+	return TRUE;
 	$html5_ready = explode(',', $html5_ready);
 
 	$devices_supported = array('browser', 'mobile', 'ipad', 'android');
@@ -1403,6 +1405,7 @@ function is_video_universal($html5_ready) {
 }
 
 function is_video_playable_here($html5_ready) {
+	return TRUE;
 	return strpos($html5_ready, what_is_here()) !== FALSE;
 }
 
