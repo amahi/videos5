@@ -903,7 +903,7 @@ else if (isset($_GET['e'])) {
 					}
 					$display_infos .= implode(' + ', $ainfos) . ' audio';
 				}
-				$ext = substr($v, strrpos($v, '.')+1);
+				$ext = strtolower(substr($v, strrpos($v, '.')+1));
 				if (is_dir($real_file)) {
 					$display_infos .= ', VIDEO_TS (DVD) container';
 				}
