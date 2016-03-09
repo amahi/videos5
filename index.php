@@ -112,20 +112,17 @@ if (isset($argv)) {
 				echo "Resulting file is_html5_ready (iPad)?: " . ($html5_ready_ipad ? 'yes' : 'no') . "\n";
 				echo "Resulting file is_html5_ready (Android)?: " . ($html5_ready_android ? 'yes' : 'no') . "\n";
 
-				if ($html5_ready_browser && $html5_ready_mobile && $html5_ready_ipad && $html5_ready_android) {
-					$query = sprintf("UPDATE files SET queued_for_encode = 'no' WHERE path = '%s'",
-						mysql_escape_string($row->path)
-					);
-					$result = mysql_query($query);
-					if ($result === FALSE) {
-						mysql_pconnect('localhost', 'videos5', 'videos5') or die("Can't connect to MySQL database.");
-						mysql_select_db('videos5') or die("Database 'videos5' not found, or unusable.");
-						mysql_query($query) or die("Error while updating DB: " . mysql_error() . "\n");
-					}
-					insert_video($output_file, $row->rating);
-				} else {
-					unlink($output_file);
+				// do not remove the file, no matter what -- otherwise it gets into infinite loops!
+				$query = sprintf("UPDATE files SET queued_for_encode = 'no' WHERE path = '%s'",
+					mysql_escape_string($row->path)
+				);
+				$result = mysql_query($query);
+				if ($result === FALSE) {
+					mysql_pconnect('localhost', 'videos5', 'videos5') or die("Can't connect to MySQL database.");
+					mysql_select_db('videos5') or die("Database 'videos5' not found, or unusable.");
+					mysql_query($query) or die("Error while updating DB: " . mysql_error() . "\n");
 				}
+				insert_video($output_file, $row->rating);
 			} else {
 				echo "Error: can't find output file ($output_file) after encode.";
 			}
