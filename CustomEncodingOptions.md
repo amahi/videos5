@@ -1,0 +1,7 @@
+You can change the default options used to encode videos in the same way you can change paths: by changing a MySQL entry.
+
+See **/usr/bin/HandBrakeCLI --help**, or [HandBrake CLIGuide](http://trac.handbrake.fr/wiki/CLIGuide) for available options.
+
+```
+mysql -uvideos5 -pvideos5 -e "update settings set value='/bin/nice /usr/bin/HandBrakeCLI -L -i \$input -o \$output -e x264 -q 20.0 -a 1 -E faac -B 160 -6 dpl2 -R 48 -D 0.0 -f mp4 -X 720 -Y 480 --loose-anamorphic -m -x cabac=0:ref=2:me=umh:bframes=0:8x8dct=0:trellis=0:subme=6' where name = 'encode_command'" videos5
+```
