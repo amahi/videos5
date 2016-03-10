@@ -62,7 +62,7 @@ CREATE TABLE `settings` (
 
 INSERT INTO `settings` (`name`, `value`) VALUES
 ('paths', '/var/hda/files/movies/'),
-('encode_command', '/bin/nice /usr/bin/HandBrakeCLI -L -i $input -o $output -e x264 -q 20.0 -a 1 -E faac -B 160 -6 dpl2 -R 48 -D 0.0 -f mp4 -X 720 -Y 480 --loose-anamorphic -m -x cabac=0:ref=2:me=umh:bframes=0:8x8dct=0:trellis=0:subme=6'),
+('encode_command', '/bin/nice /usr/bin/HandBrakeCLI --preset="iPhone & iPod Touch" -i $input -o $output'),
 ('encode_extension', 'm4v'),
 ('video_extensions', 'm4v,mp4,ts,mov,divx,xvid,vob,m2v,avi,mpg,mpeg,mkv,mt2,m2ts');
 
